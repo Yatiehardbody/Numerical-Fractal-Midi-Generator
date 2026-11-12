@@ -1,6 +1,6 @@
 from pathlib import Path
 import re, colorsys, json
-root=Path(__file__).resolve().parents[1];version=re.search(r'project\(NMG VERSION ([0-9.]+)',(root/'CMakeLists.txt').read_text()).group(1);html=(root/'Reference/Original.html').read_text();bridge=(root/'Web/bridge.js').read_text()
+root=Path(__file__).resolve().parents[1];version=re.search(r'project\(NMG VERSION ([0-9.]+)',(root/'CMakeLists.txt').read_text(encoding='utf-8')).group(1);html=(root/'Reference/Original.html').read_text(encoding='utf-8');bridge=(root/'Web/bridge.js').read_text(encoding='utf-8')
 # Preserve source engine/chords byte for byte; only adapter and UI sections are changed.
 script=re.search(r'<script>\s*(.*?)</script>',html,re.S).group(1)
 app_start=script.index('const module_app =')
@@ -31,7 +31,7 @@ script=core+app
 script=script.replace("tip.hidden=true;document.body.append(tip);", "tip.hidden=false;tip.textContent='Hover or focus a control to see its explanation.';document.body.append(tip);")
 script=script.replace("const hide=()=>{tip.hidden=true;};", "const hide=()=>{tip.hidden=false;tip.textContent='Hover or focus a control to see its explanation.';};")
 script=script.replace("$('parameterTooltip').hidden=true;", "$('parameterTooltip').textContent='Hover or focus a control to see its explanation.';")
-html=html.replace(re.search(r'<script>\s*(.*?)</script>',html,re.S).group(0),'<script>\n'+(root/'Web/theme.js').read_text()+'\n'+bridge+'\n'+script+'\n</script>')
+html=html.replace(re.search(r'<script>\s*(.*?)</script>',html,re.S).group(0),'<script>\n'+(root/'Web/theme.js').read_text(encoding='utf-8')+'\n'+bridge+'\n'+script+'\n</script>')
 html=re.sub(r"@import url\('https://fonts.googleapis.com[^\n]+\n",'',html)
 html=html.replace('<title>Numerical — MIDI Generator</title>','<title>NMG</title>').replace('numerical<span class="brand-dot">.</span>','NMG<span class="brand-dot">.</span>').replace('Your private composition studio','NMG · MIDI composition plugin')
 html=html.replace('<span class="brand-sub">MIDI GENERATOR</span>', '<span class="brand-sub">MIDI GENERATOR</span><span id="nmgVersion" class="version-badge">v'+version+'</span>',1)
@@ -45,7 +45,7 @@ html=html.replace('<main>',picker+'<main>',1)
 html=html.replace('<div class="lower-grid">',controls+'<div class="lower-grid">',1)
 # Scrolling native content; fixed help never floats over controls.
 css='''\nbody{padding-bottom:120px}#parameterTooltip{display:block!important;position:fixed!important;left:0!important;top:auto!important;bottom:0!important;width:100%!important;max-width:none!important;border-radius:0;min-height:62px;max-height:100px;overflow:auto;pointer-events:none;background:#26371e;color:#e4efd7;font-size:12px;z-index:1000}.native-panel{padding:20px}#nmgRoutes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}#nmgRoutes label{font-size:11px;color:#cfdfc0}#nmgRoutes select{margin-top:7px}.inactive-voice{opacity:.55}.source-panel,.settings-panel{min-width:0}header{height:64px}main{padding-top:20px}h1{font-size:28px}@media(max-width:760px){#nmgRoutes{grid-template-columns:1fr}.native-panel .fields{grid-template-columns:1fr}}\n'''
-css+=(root/'Web/appearance.css').read_text()
+css+=(root/'Web/appearance.css').read_text(encoding='utf-8')
 html=html.replace('</style>',css+'</style>',1)
 # Theme only the original green-tinted CSS palette, preserving track colors and engine.
 style=re.search(r'<style>(.*?)</style>',html,re.S).group(1)
@@ -63,9 +63,9 @@ def theme_color(match):
 style=re.sub(r'#[0-9a-fA-F]{3,8}\b',theme_color,style)
 html=re.sub(r'<style>.*?</style>',lambda _: '<style>'+style+'</style>',html,count=1,flags=re.S)
 html=html.replace('<script>','<script>\nconst NMG_THEME_COLORS='+json.dumps(palette)+';\n',1)
-(root/'Web/index.html').write_text(html)
+(root/'Web/index.html').write_text(html,encoding='utf-8',newline='\n')
 # Assert byte-for-byte mathematical modules are intact in the shipped UI.
 for name in ['chords','engine']:
- original=(root/('Reference/'+name+'.js')).read_text();assert original in html,name+' was altered'
-(root/'Tests/packaged-core.js').write_text(core+'\nglobalThis.NMGReference={engine:module_engine,chords:module_chords};')
+ original=(root/('Reference/'+name+'.js')).read_text(encoding='utf-8');assert original in html,name+' was altered'
+(root/'Tests/packaged-core.js').write_text(core+'\nglobalThis.NMGReference={engine:module_engine,chords:module_chords};',encoding='utf-8',newline='\n')
 print('Built Web/index.html; original engine and chords verified byte-for-byte.')

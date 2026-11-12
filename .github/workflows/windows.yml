@@ -47,6 +47,9 @@ jobs:
       - name: Build installer and installation ZIP
         shell: pwsh
         run: ./tools/package_windows.ps1
+      - name: Test install and uninstall on the Windows runner
+        shell: pwsh
+        run: ./tools/test_windows_installer.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: NMG-1.1.1-Windows-x64
@@ -57,5 +60,6 @@ jobs:
         with:
           name: Windows-build-diagnostics
           path: |
+            release/windows/*-test.log
             build-win/Testing/Temporary/LastTest.log
             build-win/CMakeFiles/CMakeConfigureLog.yaml
