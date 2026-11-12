@@ -1,0 +1,9 @@
+build-*/
+release/
+tools/cmake-*/
+*.zip
+.DS_Store
+vendor/
+dependencies/
+Web/index.html
+Tests/packaged-core.js

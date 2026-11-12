@@ -1,0 +1,7 @@
+import vm from 'node:vm';import fs from 'node:fs';import crypto from 'node:crypto';import assert from 'node:assert/strict';
+const context={TextEncoder,structuredClone};vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('../Reference/core.js',import.meta.url),'utf8'),context);const e=context.NMGReference.engine;
+const sha=data=>crypto.createHash('sha256').update(data).digest('hex');const fixtures=[];
+for(const engine of e.ENGINES)for(const input of ['13731','528','10803','0','314159']){const s={...e.defaults(),engine,input,seconds:12.345,seed:'NMG-reference-1'};const c=e.compose(s);assert.ok(c.validation.valid);const midi=e.exportMidi(c);assert.equal(sha(midi),sha(e.exportMidi(e.compose(s))));fixtures.push({settings:s,midiSHA256:sha(midi),eventsSHA256:sha(JSON.stringify(c.notes)),notes:c.notes.length});}
+for(const scale of Object.keys(e.SCALES)){const s={...e.defaults(),scale,mode:'sequence',input:'12, -8, 0, 21, 3',voices:8,seconds:9.125,seed:'all-scales'};const c=e.compose(s);fixtures.push({settings:s,midiSHA256:sha(e.exportMidi(c)),eventsSHA256:sha(JSON.stringify(c.notes)),notes:c.notes.length});}
+const path=new URL('../Reference/fixtures.json',import.meta.url);if(process.argv.includes('--record'))fs.writeFileSync(path,JSON.stringify(fixtures,null,2));else assert.deepEqual(JSON.parse(JSON.stringify(fixtures)),JSON.parse(fs.readFileSync(path)));
+console.log('PASS original reference:',fixtures.length,'deterministic MIDI/event fixtures');

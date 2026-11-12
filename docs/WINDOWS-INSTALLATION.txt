@@ -1,0 +1,30 @@
+NMG 1.1.1 — Windows x64 VST3
+
+Save your work and quit FL Studio completely before installing or updating.
+Closing only the plugin window does not unload an older plugin.
+
+Run NMG-1.1.1-Windows-x64-Setup.exe. It installs the VST3 bundle in:
+C:\Program Files\Common Files\VST3\NMG.vst3
+
+The installer requests administrator permission. If needed, it installs
+Microsoft's WebView2 Runtime using the included official bootstrapper.
+That step requires an internet connection. The NMG installer is unsigned.
+
+Reopen FL Studio, scan installed plugins, and load NMG VST3. Confirm v1.1.1
+in the header. Choose External MIDI and match NMG's Wrapper output port
+with the instrument's input port. All voice channels initially use 1.
+
+To uninstall, use Windows Settings > Apps > Installed apps > NMG > Uninstall.
+Your saved presets and DAW projects are preserved. The shared Microsoft
+WebView2 Runtime is not removed.
+
+Manual installation: copy the whole VST3\NMG.vst3 folder to the location
+above. Install Microsoft WebView2 Runtime first if it is not present.
+
+This is the x64 Windows build. No AU, VST2 or standalone application is
+included. Internal preview uses system audio, not the DAW audio output.
+Drag MIDI uses the original multitrack exporter; channel routing affects
+live MIDI output. Generated notes and mathematical algorithms are unchanged.
+
+Native tests and engine-equivalence tests are run during the build. Actual
+Windows FL Studio interaction and instrument routing require user testing.

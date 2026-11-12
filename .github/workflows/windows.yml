@@ -1,0 +1,61 @@
+name: Build NMG Windows installer
+on:
+  push:
+    branches: [main, windows-build]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch pinned JUCE and WebView2 SDK
+        shell: pwsh
+        run: |
+          if (!(Test-Path vendor/JUCE/CMakeLists.txt)) {
+            git clone --depth 1 --branch 8.0.12 https://github.com/juce-framework/JUCE.git vendor/JUCE
+            if ($LASTEXITCODE) { throw 'JUCE checkout failed' }
+          }
+          nuget install Microsoft.Web.WebView2 -Version 1.0.3485.44 -OutputDirectory "$pwd/dependencies" -NonInteractive
+          if ($LASTEXITCODE) { throw 'WebView2 SDK download failed' }
+      - name: Verify original generation
+        shell: pwsh
+        run: |
+          python tools/build_web.py
+          if ($LASTEXITCODE) { throw 'Embedded UI generation failed' }
+          node Tests/reference.mjs
+          if ($LASTEXITCODE) { throw 'Reference test failed' }
+          node Tests/equivalence.mjs
+          if ($LASTEXITCODE) { throw 'Engine equivalence failed' }
+      - name: Build x64 VST3 and native tests
+        shell: pwsh
+        run: |
+          cmake -S . -B build-win -A x64 -DNMG_FORMATS=VST3 "-DJUCE_WEBVIEW2_PACKAGE_LOCATION=$pwd/dependencies"
+          if ($LASTEXITCODE) { throw 'CMake configuration failed' }
+          cmake --build build-win --config Release --target NMG_VST3 NMGNativeTests nmg_scheduler_tests --parallel 4
+          if ($LASTEXITCODE) { throw 'Native compilation failed' }
+          ctest --test-dir build-win -C Release --output-on-failure
+          if ($LASTEXITCODE) { throw 'Native tests failed' }
+      - name: Build installer and installation ZIP
+        shell: pwsh
+        run: ./tools/package_windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NMG-1.1.1-Windows-x64
+          path: release/windows/NMG-1.1.1-Windows-x64.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Windows-build-diagnostics
+          path: |
+            build-win/Testing/Temporary/LastTest.log
+            build-win/CMakeFiles/CMakeConfigureLog.yaml
