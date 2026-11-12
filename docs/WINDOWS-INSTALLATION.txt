@@ -1,18 +1,21 @@
-NMG 1.1.1 — Windows x64 VST3
+NMG 1.1.4 — Windows x64 VST3
 
 Save your work and quit FL Studio completely before installing or updating.
 Closing only the plugin window does not unload an older plugin.
 
-Run NMG-1.1.1-Windows-x64-Setup.exe. It installs the VST3 bundle in:
+Run NMG-1.1.4-Windows-x64-Setup.exe. It installs the VST3 bundle in:
 C:\Program Files\Common Files\VST3\NMG.vst3
 
 The installer requests administrator permission. If needed, it installs
 Microsoft's WebView2 Runtime using the included official bootstrapper.
 That step requires an internet connection. The NMG installer is unsigned.
 
-Reopen FL Studio, scan installed plugins, and load NMG VST3. Confirm v1.1.1
-in the header. Choose External MIDI and match NMG's Wrapper output port
-with the instrument's input port. All voice channels initially use 1.
+Reopen FL Studio, scan installed plugins, and load NMG VST3. Confirm v1.1.4
+in the header. New instances default to Internal preview (system audio),
+theme #3EE23E, Starting palette Fractal and Composition Engine AUTO.
+Press Play to audition. Saved projects/presets keep their saved settings.
+For DAW instrument output, choose External MIDI and match NMG's Wrapper
+output port with the instrument's input port. All voice channels start on 1.
 
 To uninstall, use Windows Settings > Apps > Installed apps > NMG > Uninstall.
 Your saved presets and DAW projects are preserved. The shared Microsoft
@@ -28,3 +31,9 @@ live MIDI output. Generated notes and mathematical algorithms are unchanged.
 
 Native tests and engine-equivalence tests are run during the build. Actual
 Windows FL Studio interaction and instrument routing require user testing.
+
+Chromatic under Scale / Mode offers Entered numbers and Transformed numbers.
+Both map 1=C through 12=B. Zero is a rest; nonzero integers wrap every 12.
+Use the existing Sequence Mode for whole values such as 10, 11 and 12.
+The piano roll follows the color theme. Original Synth uses the smooth
+preview envelope and pause/stop/seek fades introduced in Mac 1.1.3.

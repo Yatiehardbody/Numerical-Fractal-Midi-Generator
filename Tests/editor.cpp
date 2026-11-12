@@ -6,7 +6,7 @@ void snapshotEditor(juce::Component&,const juce::String&,std::function<void(bool
 void snapshotEditor(juce::Component&,const juce::String&,std::function<void(bool)> f){f(true);}
 #endif
 
-// Automated WKWebView smoke test. This never launches a DAW.
+// Automated embedded browser smoke test. This never launches a DAW.
 class EditorCheck final : private juce::Timer {
     NMGProcessor processor;
     std::unique_ptr<juce::AudioProcessorEditor> editor;
@@ -36,9 +36,17 @@ public:
             auto* channels = state["plugin"]["channels"].getArray();
             if ((int)state["settings"]["voices"] != 5 || !channels || channels->size() != 8) { finish(false, "initial defaults"); return; }
             for (auto channel : *channels) if ((int)channel != 1) { finish(false, "initial channel"); return; }
+            if(state["settings"]["preset"].toString()!="Fractal"||state["settings"]["engine"].toString()!="AUTO"||state["plugin"]["theme"].toString()!="3EE23E"||(bool)state["plugin"]["external"]){finish(false,"Fractal/AUTO, green/internal preview defaults");return;}
             originalNotes = juce::JSON::toString(state["composition"]["notes"]);
             stage = 1;
             browser->evaluateJavascript(R"JS((()=>{
+              if(document.getElementById('nmgOutput').value!=='internal'||document.getElementById('themeHex').value!=='3EE23E')throw Error('initial UI defaults');
+              if(![...document.getElementById('scale').options].some(o=>o.value==='Chromatic'))throw Error('Chromatic option');
+              const roll=document.getElementById('roll'),pixel=()=>Array.from(roll.getContext('2d').getImageData(roll.width-1,10,1,1).data);
+              const green=pixel();if(green[1]<=green[0]||green[1]<=green[2])throw Error('piano roll default color');
+              document.getElementById('themeHex').value='0066FF';document.getElementById('themeHex').dispatchEvent(new Event('change'));
+              const blue=pixel();if(blue[2]<=blue[0]||blue[2]<=blue[1])throw Error('piano roll theme update');
+              document.getElementById('themeReset').click();
               const routes=[...document.querySelectorAll('#nmgRoutes select')];
               if(routes.length!==8 || routes.some(x=>x.options.length!==16))throw Error('routing UI');
               if(!document.getElementById('legend').textContent.includes('Voice 2 (Bass)'))throw Error('voice labels');

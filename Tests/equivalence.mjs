@@ -5,3 +5,6 @@ const hash=x=>crypto.createHash('sha256').update(x).digest('hex');for(const f of
 const html=fs.readFileSync(new URL('../Web/index.html',import.meta.url),'utf8');for(const name of ['engine','chords'])assert.ok(html.includes(fs.readFileSync(new URL(`../Reference/${name}.js`,import.meta.url),'utf8')));
 assert.equal(packaged.defaults().voices,5);assert.ok(html.includes('channels:[1,1,1,1,1,1,1,1]'));for(const role of ['Lead','Bass','Harmony','Counterpoint','Additional Melody','Mathematical Texture','Canon Voice','Upper Texture'])assert.ok(html.includes('('+role+')'));
 console.log('PASS packaged engine: 78 byte-identical MIDI and event fixtures; exact original engine/chords, voice defaults and labels.');
+
+const fresh=packaged.defaults();assert.equal(fresh.preset,'Fractal');assert.equal(fresh.engine,'AUTO');assert.deepEqual(JSON.parse(JSON.stringify(fresh.influence)),JSON.parse(JSON.stringify(original.presetSettings('Fractal',original.defaults()).influence)));
+console.log('PASS initial Fractal profile / AUTO engine, with original explicit-setting fixture outputs preserved.');

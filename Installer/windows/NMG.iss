@@ -1,5 +1,5 @@
 #ifndef PluginVersion
-  #define PluginVersion "1.1.1"
+  #define PluginVersion "1.1.4"
 #endif
 #ifndef StageDir
   #error StageDir must point to the verified Windows release staging folder.

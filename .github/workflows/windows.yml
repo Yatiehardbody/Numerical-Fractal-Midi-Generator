@@ -35,12 +35,14 @@ jobs:
           if ($LASTEXITCODE) { throw 'Reference test failed' }
           node Tests/equivalence.mjs
           if ($LASTEXITCODE) { throw 'Engine equivalence failed' }
+          node Tests/chromatic.mjs
+          if ($LASTEXITCODE) { throw 'Chromatic mapping failed' }
       - name: Build x64 VST3 and native tests
         shell: pwsh
         run: |
           cmake -S . -B build-win -A x64 -DNMG_FORMATS=VST3 "-DJUCE_WEBVIEW2_PACKAGE_LOCATION=$pwd/dependencies"
           if ($LASTEXITCODE) { throw 'CMake configuration failed' }
-          cmake --build build-win --config Release --target NMG_VST3 NMGNativeTests nmg_scheduler_tests --parallel 4
+          cmake --build build-win --config Release --target NMG_VST3 NMGNativeTests NMGEditorTests NMGPreviewTests nmg_scheduler_tests --parallel 4
           if ($LASTEXITCODE) { throw 'Native compilation failed' }
           ctest --test-dir build-win -C Release --output-on-failure
           if ($LASTEXITCODE) { throw 'Native tests failed' }
@@ -50,10 +52,17 @@ jobs:
       - name: Test install and uninstall on the Windows runner
         shell: pwsh
         run: ./tools/test_windows_installer.ps1
+      - name: Verify embedded Windows interface and audio preview
+        shell: pwsh
+        run: |
+          ./build-win/Release/NMGEditorTests.exe 2>&1 | Tee-Object release/windows/editor-test.log
+          if ($LASTEXITCODE) { throw 'Embedded interface test failed' }
+          ./build-win/Release/NMGPreviewTests.exe 2>&1 | Tee-Object release/windows/preview-test.log
+          if ($LASTEXITCODE) { throw 'Audio render test failed' }
       - uses: actions/upload-artifact@v4
         with:
-          name: NMG-1.1.1-Windows-x64
-          path: release/windows/NMG-1.1.1-Windows-x64.zip
+          name: NMG-1.1.4-Windows-x64
+          path: release/windows/NMG-1.1.4-Windows-x64.zip
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()

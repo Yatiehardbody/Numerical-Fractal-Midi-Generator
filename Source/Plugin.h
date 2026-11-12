@@ -13,7 +13,7 @@ public:
  void getStateInformation(juce::MemoryBlock&)override;void setStateInformation(const void*,int)override;
  void rememberEditorSize(int,int);juce::Point<int> editorSize();
  void acceptState(const juce::var&,bool preserveEditorSize=false);juce::var getState();void command(const juce::var&);void publish();
- std::atomic<bool> sync{true},external{true},play{false};std::atomic<double> displayedBeat{0},hostBpm{120};std::atomic<bool> hostRunning{false};std::atomic<uint64_t> stateRevision{0};
+ std::atomic<bool> sync{true},external{false},play{false};std::atomic<double> displayedBeat{0},hostBpm{120};std::atomic<bool> hostRunning{false};std::atomic<uint64_t> stateRevision{0};
 private:
  juce::CriticalSection stateLock;juce::var state;std::atomic<nmg::Score*> score{nullptr},hazard{nullptr};std::unique_ptr<nmg::Score> owned;std::vector<std::unique_ptr<nmg::Score>> retired;
  nmg::Scheduler scheduler;juce::MidiBuffer output;double sampleRate=44100,freeBeat=0;uint64_t handledSeek=0,handledMode=0;std::atomic<uint64_t> seekVersion{0},modeVersion{0};std::atomic<double> seekBeat{0};
